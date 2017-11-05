@@ -32,7 +32,6 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
             ratingControl.rating = meal.rating
         }
         updateSaveButtonState()
-        
     }
 
     
@@ -82,7 +81,14 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
     
     
     @IBAction func cancel(_ sender: UIBarButtonItem) {
+        let isPresentingInAddMealMode = presentingViewController is UINavigationController
+        if isPresentingInAddMealMode {
         dismiss(animated: true, completion: nil)
+        } else if let owningNavigationController = navigationController {
+            owningNavigationController.popViewController(animated: true)
+        } else {
+            fatalError("The MealViewController is not inside a navigation controller.")
+        }
     }
     
     
@@ -111,6 +117,8 @@ class MealViewController: UIViewController, UITextFieldDelegate, UIImagePickerCo
         let text = nameTextField.text ?? ""
         saveButton.isEnabled = !text.isEmpty
     }
+    
+    
     
     //MARK: UITEXTFIELD
     
