@@ -33,4 +33,27 @@ class KainanTests: XCTestCase {
         }
     }
     
+    //MARK: Meal Class Tests
+    
+    func testMealInitializationSucceeds() {
+        let zeroRating = Meal(name: "Zero", photo: nil, rating: 0)
+        XCTAssertNotNil(zeroRating)
+        
+        let positiveRating = Meal(name: "Positive", photo: nil, rating: 5)
+        XCTAssertNotNil(positiveRating)
+    }
+    
+    func testMealInitializationFails() {
+        
+        let negativeRating = Meal(name: "Negative", photo: nil, rating: -1)
+        XCTAssertNil(negativeRating)
+        
+        let largeRating = Meal(name: "Large", photo: nil, rating: 6)
+        XCTAssertNil(largeRating)
+        
+        let emptyName = Meal(name: "", photo: nil, rating: 0)
+        XCTAssertNil(emptyName)
+        
+    }
+    
 }
