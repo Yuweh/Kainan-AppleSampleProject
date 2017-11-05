@@ -37,10 +37,30 @@ class MealsTableViewController: UITableViewController {
         
     }
     
+    private func saveMeals() {
+        let isSuccessfulSave = NSKeyedArchiver.archiveRootObject(meals, toFile: Meal.ArchiveURL.path)
+        if isSuccessfulSave {
+            os_log("Meals successfully saved")
+        } else {
+            os_log("Failed to save meals..", log: OSLog.default, type: .error)
+        }
+    }
+    
+    private func loadMeals() -> [Meal]? {
+    
+        return NSKeyedUnarchiver.unarchiveObject(withFile: Meal.ArchiveURL.path) as? [Meal]
+    }
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        loadSampleMeals()
+        navigationItem.leftBarButtonItem = editButtonItem
+        if let savedMeals = loadMeals() {
+            meals += savedMeals
+        } else {
+            loadSampleMeals()
+        }
+        //loadSampleMeals()
         // Uncomment the following line to preserve selection between presentations
         // self.clearsSelectionOnViewWillAppear = false
 
@@ -84,20 +104,26 @@ class MealsTableViewController: UITableViewController {
     //MARK: Actions
     @IBAction func unwindToMealList(sender: UIStoryboardSegue) {
         if let sourceViewController = sender.source as? MealViewController, let meal = sourceViewController.meal {
-            
+            if let selectedIndexPath = tableView.indexPathForSelectedRow {
+                meals[selectedIndexPath.row] = meal
+                tableView.reloadRows(at: [selectedIndexPath], with: .none)
+            } else {
             //Add a new meal
             let newIndexPath = IndexPath(row: meals.count, section: 0)
             
             //Add a new meal to the array above
             meals.append(meal)
             tableView.insertRows(at: [newIndexPath], with: .automatic)
+            }
+            saveMeals()
+            
         }
     }
 
     // MARK: - Navigation
 
     // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         super.prepare(for: segue, sender: sender)
         // Get the new view controller using segue.destinationViewController.
         // Pass the selected object to the new view controller.
@@ -127,25 +153,27 @@ class MealsTableViewController: UITableViewController {
     }
 
     
-    /*
      // Override to support conditional editing of the table view.
+    
      override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
      // Return false if you do not want the specified item to be editable.
      return true
      }
-     */
+   
     
-    /*
+   
      // Override to support editing the table view.
      override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
      if editingStyle == .delete {
-     // Delete the row from the data source
-     tableView.deleteRows(at: [indexPath], with: .fade)
+           // Delete the row from the data source
+        meals.remove(at: indexPath.row)
+        saveMeals()
+        tableView.deleteRows(at: [indexPath], with: .fade)
      } else if editingStyle == .insert {
      // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
      }
      }
-     */
+    
     
     /*
      // Override to support rearranging the table view.
